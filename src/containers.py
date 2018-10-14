@@ -1,9 +1,7 @@
-import xlrd
-import datetime
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 import operator
+import math
 
 OPERATORS = [operator.add, operator.sub, operator.truediv, operator.mul]
 COEF_LIM = [-10, 10]
@@ -127,8 +125,8 @@ class Population:
 		# Assumes we cross populate with `One point` crosser over at idx 3
 		# Create two random offspring which will start off with random genes
 		# but we will replace them with their parent's genes
-		offspring_1 = Individual()
-		offspring_2 = Individual()
+		os_1 = Individual()
+		os_2 = Individual()
 		# Copy best two individuals (aka parents)
 		best_1 = self.best_individuals[0]
 		best_2 = self.best_individuals[1]
@@ -143,11 +141,13 @@ class Population:
 		new_individuals.append(best_1)
 		new_individuals.append(best_2)
 		# Mutate offspring 1 and 2
-		new_individuals.append(os_1.mutate())
-		new_individuals.append(os_2.mutate())
+		os_1.mutate()
+		os_2.mutate()
+		new_individuals.append(os_1)
+		new_individuals.append(os_2)
 		# Create rest of the population using os_1 and os_2 as the foundation
 		new_num_individuals = math.floor((self.size - 4) / 2)
-		for i in range new_num_individuals:
+		for i in range(new_num_individuals):
 			for individual in [os_1, os_2]:
 				# Make new individual
 				new_individual = Individual()
@@ -171,10 +171,10 @@ class Population:
 		# individuals for now
 		fitness = [(idx, ind.fitness) for idx, ind in enumerate(self.individuals)]
 		# Convert to numpy for sorting
-		fitness = np.array(fitness, dtype=([('idx', np.float32), ('fitness', np.float32)]))
+		fitness = np.array(fitness, dtype=([('idx', np.int8), ('fitness', np.float32)]))
 		# Sort individuals by fitness only
 		sorted_individuals = np.sort(fitness, order='fitness')
 		# Get best `number` of individuals
 		best_individuals = sorted_individuals[-2:]
 		# Save best_individuals
-		self.best_individuals = best_individuals
+		self.best_individuals = [self.individuals[idx] for idx, fitness in best_individuals]
